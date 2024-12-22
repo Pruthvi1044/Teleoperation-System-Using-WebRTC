@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controller with Camera</title>
+    <style>
+        nav#button_container {
+            width: 300px;
+            margin: 20px auto;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        button {
+            font-size: 18px;
+            margin: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 120px;
+        }
+        #camera {
+            display: block;
+            margin: 0 auto;
+            width: 90%;
+            max-width: 600px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <video id="camera" autoplay playsinline></video>
+
+    <nav id="button_container">
+        <button onclick="sendCommand('Moving Forward')">Forward</button><br>
+        <button onclick="sendCommand('Moving Left')">Left</button>
+        <button onclick="sendCommand('Moving Right')">Right</button><br>
+        <button onclick="sendCommand('Moving Backward')">Backward</button>
+    </nav>
+
+    <script>
+        const socket = new WebSocket('ws://localhost:8081');
+
+        socket.onopen = () => {
+            console.log('WebSocket connection established');
+        };
+
+        socket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+        function sendCommand(command) {
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send(command);
+                console.log('Sent:', command);
+            } else {
+                console.error('WebSocket is not open');
+            }
+        }
+
+        // Access the user's camera
+        const camera = document.getElementById('camera');
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                camera.srcObject = stream;
+                console.log('Camera feed started');
+            })
+            .catch((err) => {
+                console.error('Error accessing camera:', err);
+            });
+    </script>
+</body>
+</html>

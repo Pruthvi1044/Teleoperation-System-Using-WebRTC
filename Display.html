@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display with Camera</title>
+    <style>
+        #output {
+            font-size: 30px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            margin: 20px auto;
+            text-align: center;
+            border: 2px solid #ddd;
+            padding: 20px;
+            width: 300px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #camera {
+            display: block;
+            margin: 0 auto;
+            width: 90%;
+            max-width: 600px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <video id="camera" autoplay playsinline></video>
+    <div id="output">Waiting for commands...</div>
+
+    <script>
+        const socket = new WebSocket('ws://localhost:8081');
+
+        socket.onmessage = (event) => {
+            document.getElementById('output').innerHTML = event.data;
+        };
+
+        socket.onopen = () => {
+            console.log('WebSocket connection established');
+        };
+
+        socket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+        // Access the user's camera
+        const camera = document.getElementById('camera');
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                camera.srcObject = stream;
+                console.log('Camera feed started');
+            })
+            .catch((err) => {
+                console.error('Error accessing camera:', err);
+            });
+    </script>
+</body>
+</html>
